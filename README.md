@@ -43,7 +43,7 @@ This is a personal project that i made to better my skills in web development
 ## 📸 Screenshots
 
 ### 🔹 Home Page
-![Home Page](public/screenshots/home.png)
+![Home Page](public/screenshots/home.jpg)
 
 ### 🔹 Movie Details Page
 ![Details Page 1](public/screenshots/page1.jpg)
