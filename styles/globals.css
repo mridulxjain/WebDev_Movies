@@ -1,0 +1,12 @@
+body{
+    background-color: #121212;
+    
+}
+.scroll-container::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-container {
+    -ms-overflow-style: none; 
+    scrollbar-width: none;  
+  }
