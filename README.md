@@ -1,3 +1,13 @@
+# Movie Database (Repo Sprint Starter)
+
+This is a lightweight Next.js starter for the Repo Sprint event.
+
+Notes for participants:
+- The UI renders placeholder cards on the home page to help you focus on layout first.
+- API calls have been intentionally removed from the grid/cards. See TODO comments in files for integration spots.
+- Check `CONTRIBUTING.md` for how to participate and submit your work.
+
+Happy hacking! 🚀
 # 🎬 Movie DB App
 
 A sleek and responsive movie database web app built using **Next.js**, allowing users to search, explore, and view detailed info about movies and TV shows using the [TMDB API](https://www.themoviedb.org/documentation/api).

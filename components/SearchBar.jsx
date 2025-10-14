@@ -1,3 +1,7 @@
+// SearchBar: controlled input that visually expands when focused (via parent `Layout`).
+// The parent passes `isFocused` and focus handlers to manage overlay and sizing.
+// TODO: Implement debounced search and show suggestions dropdown on type.
+// TODO: Add form semantics and label for accessibility; support keyboard navigation.
 import {useState} from 'react';
 
 export default function SearchBar({ isFocused, onFocus, onBlur }){

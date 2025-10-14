@@ -1,3 +1,5 @@
+// ESLint configuration using flat config with Next.js defaults.
+// TODO: Consider adding rules for accessibility (jsx-a11y) and import/order during the sprint.
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";

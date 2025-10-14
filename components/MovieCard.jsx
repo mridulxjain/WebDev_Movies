@@ -1,13 +1,11 @@
-import { useEffect ,useState} from "react";
+// MovieCard: a single movie item with poster/title space and hover interaction.
+// In placeholder mode, it renders a skeleton block; otherwise it acts as a clickable card.
+// TODO: Accept explicit props like `title`, `posterUrl`, and `id` when API integration is added.
+import { useState } from "react";
 import { useRouter } from "next/router";
 
-export default function MovieCard({movieID=12}){
-    const token = process.env.NEXT_PUBLIC_TMDB_BEARER_TOKEN;
+export default function MovieCard({movieID=12, placeholder=false}){
     const router = useRouter();
-
-    const [movie,setMovie] = useState(null);
-    const [posterPath,setPPath] = useState(null);
-    const [mTitle,setTitle] = useState(null);
 
     const [mouseFocus,setMFocus] = useState(false);
 
@@ -19,37 +17,9 @@ export default function MovieCard({movieID=12}){
         setMFocus(false)
     }
 
-    useEffect(() => {
-        const fetchMovie = async() => {
-            try{
-                const res = await fetch(`https://api.themoviedb.org/3/movie/${movieID}?language=en-US`,
-                {
-                    method: 'GET',
-                    headers: {
-                        accept: 'application/json',
-                        Authorization: `Bearer ${token}`
-                    }
-                });
+    // TODO(api): When API is implemented, replace placeholder rendering with real poster and title.
+    // Suggested providers: TMDB (rich data, images), OMDb (simple, key-based), Trakt (social/metadata), JustWatch (availability), or your own backend.
 
-                const data = await res.json();
-                setMovie(data);
-            }catch(error){
-                console.error('Failed to fetch movie',error)
-            }
-        }
-
-        fetchMovie();
-    },[])
-
-    useEffect(()=>{
-        if (movie){
-            setPPath(movie.poster_path)
-            setTitle(movie.title)
-        };
-    },[movie])
-
-    const imgURL=`https://image.tmdb.org/t/p/w780${posterPath}`;
-    
     const styles = {
         div:{
             maxWidth: '200px',
@@ -60,6 +30,17 @@ export default function MovieCard({movieID=12}){
             borderRadius: '12px',
             transition: 'transform 0.3s ease',
             transform: mouseFocus ? 'scale(1.05)' : 'scale(1)',
+            background: 'linear-gradient(135deg, #2A2A2A 0%, #1C1C1C 100%)',
+            display: 'block'
+        },
+        skeletonBar:{
+            width: '70%',
+            height: '16px',
+            marginTop: '10px',
+            borderRadius: '6px',
+            background: 'linear-gradient(90deg, #2a2a2a 0%, #3a3a3a 50%, #2a2a2a 100%)',
+            backgroundSize: '200% 100%',
+            animation: 'placeholderShimmer 1.2s ease-in-out infinite'
         },
         title:{
             color: '#B0B0B0',
@@ -68,11 +49,25 @@ export default function MovieCard({movieID=12}){
             fontFamily: 'Oswald, sans-serif',
         }
     }
-    return(
-    <>
-        <div style={styles.div}>   
-            <img src={imgURL} alt={mTitle} style={styles.image} onMouseEnter={mouseFocused} onMouseLeave={mouseUnfocused} onClick={() => router.push(`/movies/${movieID}`)}/>
-            <h2 style={styles.title}>{mTitle}</h2>
-        </div>
-    </>);
+
+    if (placeholder){
+        return (
+            <>
+                <div style={styles.div}>
+                    <div style={styles.image} onMouseEnter={mouseFocused} onMouseLeave={mouseUnfocused}></div>
+                    <div style={styles.skeletonBar}></div>
+                </div>
+            </>
+        );
+    }
+
+    // Fallback non-placeholder (if used elsewhere later)
+    return (
+        <>
+            <div style={styles.div}>
+                <div style={styles.image} onMouseEnter={mouseFocused} onMouseLeave={mouseUnfocused} onClick={() => router.push(`/movies/${movieID}`)}></div>
+                <h2 style={styles.title}>Movie Title</h2>
+            </div>
+        </>
+    );
 }

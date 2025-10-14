@@ -1,3 +1,8 @@
+// Layout: wraps all pages with a consistent header, main content area, and footer.
+// Includes a focus-aware overlay tied to the `SearchBar` to create a spotlight effect.
+// TODO: Improve accessibility (ARIA roles/labels for header/main/footer, skip links).
+// TODO: Consider extracting inline styles to CSS for easier theming and maintenance.
+// TODO: Make header responsive on small screens (collapse/stack elements, reduce blur overlays).
 import Head from 'next/head';
 import SearchBar from './SearchBar';
 import {useState} from 'react';

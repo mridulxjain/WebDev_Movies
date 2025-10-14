@@ -1,3 +1,7 @@
+// Movie detail page: shows a single movie with backdrop, poster, and metadata.
+// Currently relies on TMDB endpoints. For the sprint, you can replace with your chosen provider.
+// TODO: Replace TMDB fetches with your data layer or adapter (TMDB/OMDb/Trakt/JustWatch/backend).
+// TODO: Add loading and error states; handle missing images and provider logos gracefully.
 import { useRouter } from "next/router";
 import { useEffect , useState} from "react";
 
@@ -5,6 +9,7 @@ export default function Page(){
     const router = useRouter();
     const {id} = router.query;
 
+    // TODO(security): Do not expose secrets in the client. Use a server route/proxy for API tokens.
     const token = process.env.NEXT_PUBLIC_TMDB_BEARER_TOKEN;
 
     const [movie,setMovie] = useState(null);
