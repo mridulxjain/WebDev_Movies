@@ -12,11 +12,11 @@ export default function Layout({ children }) {
 
   const styles = {
     header: {
-      padding: "1rem 2rem",
+      padding: "0.8rem 1rem",
       display: "flex",
+      flexWrap: "wrap",
       alignItems: "center",
       justifyContent: "space-between",
-      gap: "1rem",
       fontFamily: "Oswald, sans-serif",
       position: "sticky",
       top: 0,
@@ -33,19 +33,21 @@ export default function Layout({ children }) {
     leftNav: {
       display: "flex",
       alignItems: "center",
-      gap: "1rem",
+      gap: "0.8rem",
+      flexWrap: "wrap",
     },
     rightNav: {
       display: "flex",
       alignItems: "center",
-      gap: "1rem",
+      gap: "0.8rem",
+      flexWrap: "wrap",
     },
     title: {
       fontSize: "1.8rem",
       fontWeight: 700,
     },
     button: {
-      padding: "0.5rem 1rem",
+      padding: "0.4rem 0.9rem",
       borderRadius: "8px",
       border: "1px solid",
       borderColor: theme === "dark" ? "#fff" : "#000",
@@ -57,7 +59,7 @@ export default function Layout({ children }) {
       transition: "transform 0.2s, box-shadow 0.2s",
     },
     themeButton: {
-      padding: "0.5rem 0.8rem",
+      padding: "0.4rem 0.6rem",
       borderRadius: "8px",
       border: "1px solid",
       borderColor: theme === "dark" ? "#fff" : "#000",
@@ -72,10 +74,12 @@ export default function Layout({ children }) {
       flexGrow: 1,
       display: "flex",
       justifyContent: "center",
-      position: "relative",
+      alignItems: "center", // vertically center username
+      minWidth: "200px",
+      margin: "0.5rem 0",
+      gap: "0.5rem",
     },
     userAfterSearch: {
-      marginLeft: "0.5rem",
       fontWeight: 600,
       color: theme === "dark" ? "#fff" : "#000",
       whiteSpace: "nowrap",
@@ -86,6 +90,17 @@ export default function Layout({ children }) {
       background: theme === "dark" ? "#000" : "#f1f1f1",
       color: theme === "dark" ? "#fff" : "#000",
       textAlign: "center",
+    },
+    mobileIcon: {
+      display: "none",
+      cursor: "pointer",
+      fontSize: "1.5rem",
+      padding: "0.2rem",
+      borderRadius: "6px",
+      border: "1px solid",
+      borderColor: theme === "dark" ? "#fff" : "#000",
+      background: theme === "dark" ? "#000" : "#fff",
+      color: theme === "dark" ? "#fff" : "#000",
     },
   };
 
@@ -123,18 +138,37 @@ export default function Layout({ children }) {
         <div style={styles.rightNav}>
           {!session && (
             <>
-              <Link href="/auth/login">
-                <button style={styles.button}>Login</button>
-              </Link>
-              <Link href="/auth/signup">
-                <button style={styles.button}>Signup</button>
-              </Link>
+              <div className="desktop-buttons">
+                <Link href="/auth/login">
+                  <button style={styles.button}>Login</button>
+                </Link>
+                <Link href="/auth/signup">
+                  <button style={styles.button}>Signup</button>
+                </Link>
+              </div>
+              <div className="mobile-icons">
+                <Link href="/auth/login">
+                  <span style={styles.mobileIcon}>🔑</span>
+                </Link>
+                <Link href="/auth/signup">
+                  <span style={styles.mobileIcon}>📝</span>
+                </Link>
+              </div>
             </>
           )}
           {session && (
-            <button style={styles.button} onClick={() => signOut()}>
-              Logout
-            </button>
+            <>
+              <div className="desktop-buttons">
+                <button style={styles.button} onClick={() => signOut()}>
+                  Logout
+                </button>
+              </div>
+              <div className="mobile-icons">
+                <button style={styles.mobileIcon} onClick={() => signOut()}>
+                  ⏏️
+                </button>
+              </div>
+            </>
           )}
         </div>
       </header>
@@ -142,6 +176,27 @@ export default function Layout({ children }) {
       <main style={styles.main}>{children}</main>
 
       <footer style={styles.footer}>© 2025 Mystic</footer>
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .desktop-buttons {
+            display: none;
+          }
+          .mobile-icons {
+            display: flex;
+            gap: 0.5rem;
+          }
+        }
+        @media (min-width: 769px) {
+          .desktop-buttons {
+            display: flex;
+            gap: 0.5rem;
+          }
+          .mobile-icons {
+            display: none;
+          }
+        }
+      `}</style>
     </>
   );
 }
