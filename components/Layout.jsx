@@ -16,37 +16,77 @@ export default function Layout({ children }) {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
+      gap: "1rem",
       fontFamily: "Oswald, sans-serif",
       position: "sticky",
       top: 0,
-      zIndex: 10,
-      backgroundColor: theme === "dark" ? "#121212" : "#fff",
-      color: theme === "dark" ? "#eee" : "#000",
-      gap: "1rem",
+      zIndex: 50,
+      backgroundColor: theme === "dark" ? "#000" : "#fff",
+      color: theme === "dark" ? "#fff" : "#000",
+      boxShadow:
+        theme === "dark"
+          ? "0 4px 12px rgba(255,255,255,0.1)"
+          : "0 4px 12px rgba(0,0,0,0.2)",
+      borderRadius: "12px",
+      backdropFilter: "blur(6px)",
     },
-    title: { fontSize: "1.8rem", fontWeight: 700 },
-    main: { padding: "2rem", minHeight: "80vh" },
-    footer: {
-      padding: "1rem",
-      background: theme === "dark" ? "#1F1F1F" : "#f1f1f1",
-      color: theme === "dark" ? "#ccc" : "#333",
-      textAlign: "center",
-    },
-    navButtons: {
+    leftNav: {
       display: "flex",
       alignItems: "center",
       gap: "1rem",
     },
+    rightNav: {
+      display: "flex",
+      alignItems: "center",
+      gap: "1rem",
+    },
+    title: {
+      fontSize: "1.8rem",
+      fontWeight: 700,
+    },
     button: {
       padding: "0.5rem 1rem",
-      borderRadius: "6px",
-      border: "none",
+      borderRadius: "8px",
+      border: "1px solid",
+      borderColor: theme === "dark" ? "#fff" : "#000",
       cursor: "pointer",
       fontWeight: 600,
-      background: theme === "dark" ? "#ff6600" : "#ff6600",
-      color: "#fff",
+      background: theme === "dark" ? "#000" : "#fff",
+      color: theme === "dark" ? "#fff" : "#000",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+      transition: "transform 0.2s, box-shadow 0.2s",
     },
-    sessionText: { marginRight: "0.5rem", fontWeight: 600 },
+    themeButton: {
+      padding: "0.5rem 0.8rem",
+      borderRadius: "8px",
+      border: "1px solid",
+      borderColor: theme === "dark" ? "#fff" : "#000",
+      cursor: "pointer",
+      fontSize: "1.2rem",
+      background: theme === "dark" ? "#000" : "#fff",
+      color: theme === "dark" ? "#fff" : "#000",
+      boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+      transition: "transform 0.2s, box-shadow 0.2s",
+    },
+    searchWrapper: {
+      flexGrow: 1,
+      display: "flex",
+      justifyContent: "center",
+      position: "relative",
+    },
+    userAfterSearch: {
+      marginLeft: "0.5rem",
+      fontWeight: 600,
+      color: theme === "dark" ? "#fff" : "#000",
+      whiteSpace: "nowrap",
+    },
+    main: { padding: "2rem", minHeight: "80vh" },
+    footer: {
+      padding: "1rem",
+      background: theme === "dark" ? "#000" : "#f1f1f1",
+      color: theme === "dark" ? "#fff" : "#000",
+      textAlign: "center",
+    },
   };
 
   return (
@@ -58,64 +98,44 @@ export default function Layout({ children }) {
       </Head>
 
       <header style={styles.header}>
-        <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
-          <h1 style={styles.title}>MovieDB</h1>
-
-          <div style={styles.navButtons}>
-            <button style={styles.button} onClick={() => (window.location.href = "/")}>
-              Home
-            </button>
-            <button style={styles.button} onClick={toggleTheme}>
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
-            </button>
-
-            {/* Session Buttons */}
-            {!session && (
-              <>
-                <Link href="/auth/login">
-                  <button style={styles.button}>Login</button>
-                </Link>
-                <Link href="/auth/signup">
-                  <button style={styles.button}>Signup</button>
-                </Link>
-              </>
-            )}
-
-            {session && (
-              <>
-                <span style={styles.sessionText}>Hi, {session.user.name}</span>
-                <button style={styles.button} onClick={() => signOut()}>
-                  Logout
-                </button>
-              </>
-            )}
-          </div>
+        {/* Left buttons */}
+        <div style={styles.leftNav}>
+          <span style={styles.title}>MovieDB</span>
+          <button style={styles.button} onClick={() => (window.location.href = "/")}>
+            Home
+          </button>
+          <button style={styles.themeButton} onClick={toggleTheme}>
+            {theme === "dark" ? "☀️" : "🌙"}
+          </button>
         </div>
 
-        <div
-          style={{
-            flexGrow: 1,
-            display: "flex",
-            justifyContent: "center",
-            position: "relative",
-          }}
-        >
-          {focused && (
-            <div
-              style={{
-                position: "absolute",
-                inset: 0,
-                backdropFilter: "blur(7px)",
-                zIndex: 0,
-                transition: "backdrop-filter 0.4s ease",
-              }}
-            />
-          )}
+        {/* Center search */}
+        <div style={styles.searchWrapper}>
           <SearchBar
             isFocused={focused}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
           />
+          {session && <span style={styles.userAfterSearch}>Hi, {session.user.name}</span>}
+        </div>
+
+        {/* Right buttons */}
+        <div style={styles.rightNav}>
+          {!session && (
+            <>
+              <Link href="/auth/login">
+                <button style={styles.button}>Login</button>
+              </Link>
+              <Link href="/auth/signup">
+                <button style={styles.button}>Signup</button>
+              </Link>
+            </>
+          )}
+          {session && (
+            <button style={styles.button} onClick={() => signOut()}>
+              Logout
+            </button>
+          )}
         </div>
       </header>
 
