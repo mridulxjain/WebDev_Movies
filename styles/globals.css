@@ -1,12 +1,64 @@
-body{
-    background-color: #121212;
-    
+/* Reset some defaults */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+
+/* Body background for themes */
+body {
+    font-family: 'Poppins', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark theme */
+body.dark {
+    background-color: #121212;
+    color: #eee; /* Light text for dark mode */
+}
+
+/* Light theme */
+body.light {
+    background-color: #ffffff;
+    color: #000000; /* Black text for light mode */
+}
+
+/* Scroll container - hide scrollbars */
 .scroll-container::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome, Safari, Opera */
 }
 
 .scroll-container {
-    -ms-overflow-style: none; 
-    scrollbar-width: none;  
-  }
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+/* Global link styles */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Section spacing */
+section {
+    margin: 2rem;
+}
+
+/* Images and media */
+img {
+    max-width: 100%;
+    display: block;
+}
+
+/* Buttons */
+button {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+    border: none;
+}
+
+/* Smooth transitions for hover or theme changes */
+*, *::before, *::after {
+    transition: all 0.3s ease;
+}

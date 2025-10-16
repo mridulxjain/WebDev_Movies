@@ -1,23 +1,53 @@
-// Layout: wraps all pages with a consistent header, main content area, and footer.
-// Includes a focus-aware overlay tied to the `SearchBar` to create a spotlight effect.
-// TODO: Improve accessibility (ARIA roles/labels for header/main/footer, skip links).
-// TODO: Consider extracting inline styles to CSS for easier theming and maintenance.
-// TODO: Make header responsive on small screens (collapse/stack elements, reduce blur overlays).
-import Head from 'next/head';
-import SearchBar from './SearchBar';
-import {useState} from 'react';
+import Head from "next/head";
+import SearchBar from "./SearchBar";
+import { useState } from "react";
+import { useTheme } from "../contexts/ThemeContext";
+import { useSession, signOut } from "next-auth/react";
+import Link from "next/link";
 
 export default function Layout({ children }) {
-
   const [focused, setFocused] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const { data: session } = useSession();
 
-  function handleFocus(){
-    setFocused(true);
-
-  }
-  function handleBlur(){
-    setFocused(false);
-  }
+  const styles = {
+    header: {
+      padding: "1rem 2rem",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      fontFamily: "Oswald, sans-serif",
+      position: "sticky",
+      top: 0,
+      zIndex: 10,
+      backgroundColor: theme === "dark" ? "#121212" : "#fff",
+      color: theme === "dark" ? "#eee" : "#000",
+      gap: "1rem",
+    },
+    title: { fontSize: "1.8rem", fontWeight: 700 },
+    main: { padding: "2rem", minHeight: "80vh" },
+    footer: {
+      padding: "1rem",
+      background: theme === "dark" ? "#1F1F1F" : "#f1f1f1",
+      color: theme === "dark" ? "#ccc" : "#333",
+      textAlign: "center",
+    },
+    navButtons: {
+      display: "flex",
+      alignItems: "center",
+      gap: "1rem",
+    },
+    button: {
+      padding: "0.5rem 1rem",
+      borderRadius: "6px",
+      border: "none",
+      cursor: "pointer",
+      fontWeight: 600,
+      background: theme === "dark" ? "#ff6600" : "#ff6600",
+      color: "#fff",
+    },
+    sessionText: { marginRight: "0.5rem", fontWeight: 600 },
+  };
 
   return (
     <>
@@ -28,94 +58,70 @@ export default function Layout({ children }) {
       </Head>
 
       <header style={styles.header}>
+        <div style={{ display: "flex", alignItems: "center", gap: "2rem" }}>
+          <h1 style={styles.title}>MovieDB</h1>
 
-        <h1 style={{marginLeft: "15px"}}>MovieDB</h1>
-        
-        {focused ? 
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backdropFilter: 'blur(7px)',
-              zIndex: 1,
-              transition: 'backdrop-filter 0.4s ease'
-            }}
-          ></div> : <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backdropFilter: 'blur(0px)',
-              zIndex: 1,
-              transition: 'backdrop-filter 0.4s ease'
-            }}
-        ></div>}
+          <div style={styles.navButtons}>
+            <button style={styles.button} onClick={() => (window.location.href = "/")}>
+              Home
+            </button>
+            <button style={styles.button} onClick={toggleTheme}>
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </button>
 
-        <SearchBar 
-          isFocused={focused}
-          onFocus={handleFocus}
-          onBlur={handleBlur}/>
+            {/* Session Buttons */}
+            {!session && (
+              <>
+                <Link href="/auth/login">
+                  <button style={styles.button}>Login</button>
+                </Link>
+                <Link href="/auth/signup">
+                  <button style={styles.button}>Signup</button>
+                </Link>
+              </>
+            )}
 
-      </header>
+            {session && (
+              <>
+                <span style={styles.sessionText}>Hi, {session.user.name}</span>
+                <button style={styles.button} onClick={() => signOut()}>
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
+        </div>
 
-      
-      <main style={styles.main}>
-        {children}
-        {focused ? 
+        <div
+          style={{
+            flexGrow: 1,
+            display: "flex",
+            justifyContent: "center",
+            position: "relative",
+          }}
+        >
+          {focused && (
             <div
               style={{
-                position: 'absolute',
+                position: "absolute",
                 inset: 0,
-                top:'14%',
-                backdropFilter: 'blur(7px)',
-                zIndex: 1,
-                transition: 'backdrop-filter 0.4s ease'
+                backdropFilter: "blur(7px)",
+                zIndex: 0,
+                transition: "backdrop-filter 0.4s ease",
               }}
-            ></div> : <div
-              style={{
-                position: 'absolute',
-                inset: 0,
-                display:'none',
-                backdropFilter: 'blur(0px)',
-                zIndex: 1,
-                transition: 'backdrop-filter 0.4s ease'
-              }}
-          ></div>}
-      </main>
+            />
+          )}
+          <SearchBar
+            isFocused={focused}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
+          />
+        </div>
+      </header>
 
-      <footer style={styles.footer}>
-        <p>© 2025 Mystic</p>
-      </footer>
+      <main style={styles.main}>{children}</main>
+
+      <footer style={styles.footer}>© 2025 Mystic</footer>
     </>
   );
 }
-
-const styles = {
-    header: {
-      padding: '.8rem',
-      color: '#E0E0E0',
-      width: '99%',
-      textAlign: 'left',
-      justifySelf: 'center',
-      borderRadius: '20px',
-      alignItems: 'center',
-      fontFamily: 'Oswald, sans-serif',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      position: 'relative ',
-      zIndex: 1
-    },
-    main: {
-      padding: '2rem',
-      minHeight: '80vh',
-      background: '#121212',
-      zIndex: 1
-    },
-    footer: {
-      padding: '1rem',
-      background: '#1F1F1F',
-      color: '#ccc',
-      textAlign: 'center',
-      zIndex: 1
-    },
-  };

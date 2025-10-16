@@ -1,16 +1,13 @@
-// Home page: renders multiple `MovieGrid` sections.
-// Each grid currently shows placeholder cards to keep the UI scaffolded for the sprint.
-// TODO: Add server-side data fetching or client-side hooks to populate grids.
-import styles from "@/styles/Home.module.css";
 import MovieGrid from "@/components/MovieGrid";
 
 export default function Home() {
-  return(
+  return (
     <>
-        <MovieGrid title="Now Playing"/>
-        <MovieGrid title="Top Rated"/>
-        <MovieGrid title="Popular"/>
-        <MovieGrid title="Upcoming"/>
+      <MovieGrid title="Now Playing" category="now_playing" scrollDirection="right" />
+      <MovieGrid title="Top Rated" category="top_rated" scrollDirection="left" />
+      <MovieGrid title="Popular" category="popular" scrollDirection="right" />
+      <MovieGrid title="Upcoming" category="upcoming" scrollDirection="left" />
+
     </>
   );
 }

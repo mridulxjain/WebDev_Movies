@@ -1,148 +1,128 @@
-// Movie detail page: shows a single movie with backdrop, poster, and metadata.
-// Currently relies on TMDB endpoints. For the sprint, you can replace with your chosen provider.
-// TODO: Replace TMDB fetches with your data layer or adapter (TMDB/OMDb/Trakt/JustWatch/backend).
-// TODO: Add loading and error states; handle missing images and provider logos gracefully.
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
-import { useEffect , useState} from "react";
+import MovieHeader from "../../components/MovieHeader";
+import MovieTrailer from "../../components/MovieTrailer";
+import MovieCast from "../../components/MovieCast";
+import MovieCard from "../../components/MovieCard";
+import { useTheme } from "../../contexts/ThemeContext";
 
-export default function Page(){
-    const router = useRouter();
-    const {id} = router.query;
+export default function MovieDetailPage() {
+  const router = useRouter();
+  const { id } = router.query;
+  const { theme } = useTheme();
 
-    // TODO(security): Do not expose secrets in the client. Use a server route/proxy for API tokens.
-    const token = process.env.NEXT_PUBLIC_TMDB_BEARER_TOKEN;
+  const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_KEY;
+  const TMDB_BASE = "https://api.themoviedb.org/3";
 
-    const [movie,setMovie] = useState(null);
-    const [provider,setProvider] = useState(null);
+  const [movie, setMovie] = useState(null);
+  const [credits, setCredits] = useState([]);
+  const [videos, setVideos] = useState([]);
+  const [providers, setProviders] = useState({});
+  const [similar, setSimilar] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(()=>{
-        const fetchMovieData = async() => {
-            try{
-                if (!id) return;
-                const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?language=en-US`,{
-                    method:'GET',
-                    headers:{
-                        accept: 'application/json',    
-                        Authorization: `Bearer ${token}` 
-                    }
-                })
+  const similarRef = useRef(null);
 
-                const data = await res.json();
-                setMovie(data);
-            }
-            catch(err){
-                console.error(err);
-            }
+  // Fetch movie data
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    async function fetchData() {
+      try {
+        const [movieRes, creditsRes, videosRes, providersRes, similarRes] = await Promise.all([
+          fetch(`${TMDB_BASE}/movie/${id}?api_key=${TMDB_API_KEY}&language=en-US`),
+          fetch(`${TMDB_BASE}/movie/${id}/credits?api_key=${TMDB_API_KEY}`),
+          fetch(`${TMDB_BASE}/movie/${id}/videos?api_key=${TMDB_API_KEY}`),
+          fetch(`${TMDB_BASE}/movie/${id}/watch/providers?api_key=${TMDB_API_KEY}`),
+          fetch(`${TMDB_BASE}/movie/${id}/similar?api_key=${TMDB_API_KEY}&language=en-US&page=1`)
+        ]);
 
-        }
+        const movieData = await movieRes.json();
+        const creditsData = await creditsRes.json();
+        const videosData = await videosRes.json();
+        const providersData = await providersRes.json();
+        const similarData = await similarRes.json();
 
-        fetchMovieData();
-    },[id])
-
-    useEffect(()=>{
-        const fetchMovieStreaming = async() => {
-            try{
-                if (!id) return;
-                const res = await fetch(`https://api.themoviedb.org/3/movie/${id}/watch/providers`,{
-                    method:'GET',
-                    headers:{
-                        accept: 'application/json',    
-                        Authorization: `Bearer ${token}` 
-                    }
-                })
-
-                const data = await res.json();
-                setProvider(data);
-            }
-            catch(err){
-                console.error(err);
-            }
-
-        }
-
-        fetchMovieStreaming();
-    },[id])
-
-    console.log(provider);
-
-    const posterURL=`https://image.tmdb.org/t/p/w780${movie?.poster_path}`;
-    const backdropURL = `https://image.tmdb.org/t/p/original${movie?.backdrop_path}`;
-
-    //Provider data obtained from JustWatch
-    const providerURL=`https://image.tmdb.org/t/p/w780${provider?.results?.IN?.flatrate?.[0]?.logo_path}`;
-
-    const styles = {
-        backdrop:{
-            backgroundImage: `url(${backdropURL})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            minHeight: '100vh', 
-            padding: '2rem',
-            color: 'white',
-            position: 'relative',
-        },
-        overlay:{
-            display:'flex',
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
-            padding: '2rem',
-            borderRadius: '12px',
-            maxWidth: '100vw',
-            margin: '0 auto',
-        },
-        poster:{
-            width: '300px',
-            height: '450px',
-        },
-        rating:{
-            color: '#E0E0E0',
-            fontSize: '1.45rem',
-            fontFamily: `'Lora',sans-serif`,
-            marginTop: '20px',
-            marginBottom: '25px',
-            fontWeight: 600
-        },
-        infoDiv:{
-            marginLeft: '50px',
-            color: '#F1F1F1',
-            fontFamily: `'Poppins',sans-serif`,
-        },
-        title:{
-            fontSize:'4rem',
-            marginTop: '0px',
-            marginBottom: '10px'
-        },
-        text:{
-            marginTop:'25px',
-            fontWeight:'500',
-        },
-        text2:{
-            fontWeight:'500',
-        }
+        setMovie(movieData);
+        setCredits(creditsData.cast || []);
+        setVideos(videosData.results || []);
+        setProviders(providersData.results || {});
+        setSimilar(similarData.results || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
     }
+    fetchData();
+  }, [id]);
 
-    return(
-    <> 
-        <div style={styles.backdrop}>
-            <div style={styles.overlay}>
-                <div style={{width:'300px'}}>
-                    <img src={posterURL} style={styles.poster}></img>
-                </div>
-                <div style={styles.infoDiv}>
-                    <h1 style={styles.title}>{movie?.title}</h1>
-                    <h2 style={styles.rating}>Rating : {movie?.vote_average}</h2>
-                    <h3 style={{fontWeight:500}}>{movie?.overview}</h3>
-                    <h2 style={styles.text}>Release Date : {movie?.release_date}</h2>
-                    <h2 style={styles.text2}>Genre : {movie?.genres[0]?.name}, {movie?.genres[1]?.name}</h2>
-                    <h2 style={styles.text2}>Status : {movie?.status}</h2>
-                    <h2 style={styles.text2}>Runtime : {movie?.runtime} min</h2>
-                    <h2 style={styles.text2}>Production Studio: {movie?.production_companies[0]?.name}</h2>
-                    <div style={{display:"flex"}}>
-                        <h2 style={styles.text2}>Stream On : </h2>
-                        <img src={providerURL} style={{width:'50px',height:'50px',alignSelf:'center',marginLeft:'7px'}} alt='Not Available'></img>
-                    </div>
-                </div>
+  // Infinite auto-scroll similar movies
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!similarRef.current || similarRef.current.children.length === 0) return;
+      const childWidth = similarRef.current.firstChild.offsetWidth + 15;
+      similarRef.current.scrollLeft += childWidth;
+      if (similarRef.current.scrollLeft + similarRef.current.clientWidth >= similarRef.current.scrollWidth) {
+        similarRef.current.scrollTo({ left: 0, behavior: "smooth" });
+      }
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [similar]);
+
+  if (loading || !movie) {
+    return <h1 style={{ color: theme === "dark" ? "#fff" : "#000", textAlign: "center", marginTop: "2rem" }}>Loading...</h1>;
+  }
+
+  const trailer = videos.find(v => v.site === "YouTube" && v.type === "Trailer");
+  const providerLogo = providers?.IN?.flatrate?.[0]?.logo_path ? `https://image.tmdb.org/t/p/w92${providers.IN.flatrate[0].logo_path}` : null;
+
+  const scrollLeft = () => similarRef.current.scrollBy({ left: -200, behavior: "smooth" });
+  const scrollRight = () => similarRef.current.scrollBy({ left: 200, behavior: "smooth" });
+
+  return (
+    <div style={{ backgroundColor: theme === "dark" ? "#121212" : "#fff", color: theme === "dark" ? "#fff" : "#000", minHeight: "100vh" }}>
+      <MovieHeader movie={movie} providerLogo={providerLogo} />
+      <MovieTrailer trailer={trailer} />
+      <MovieCast cast={credits.slice(0, 10)} />
+
+      {/* Similar Movies */}
+      {similar.length > 0 && (
+        <section style={{ margin: "2rem" }}>
+          <h2>Similar Movies</h2>
+          <div style={{ position: "relative" }}>
+            <button onClick={scrollLeft} style={arrowStyle("left")}>◀</button>
+            <div ref={similarRef} style={{ display: "flex", gap: "15px", overflowX: "hidden", scrollBehavior: "smooth", padding: "10px 0" }}>
+              {similar.map(m => (
+                <MovieCard
+                  key={m.id}
+                  movieID={m.id}
+                  title={m.title}
+                  posterUrl={m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : "/placeholder.jpg"}
+                />
+              ))}
             </div>
-        </div>
-    </>);
+            <button onClick={scrollRight} style={arrowStyle("right")}>▶</button>
+          </div>
+        </section>
+      )}
+    </div>
+  );
 }
+
+const arrowStyle = (side) => ({
+  position: "absolute",
+  top: "50%",
+  [side]: "0px",
+  transform: "translateY(-50%)",
+  background: "orange",
+  color: "#fff",
+  border: "none",
+  fontSize: "2rem",
+  cursor: "pointer",
+  zIndex: 5,
+  width: "40px",
+  height: "80px",
+  borderRadius: side === "left" ? "0 8px 8px 0" : "8px 0 0 8px",
+  opacity: 0.9,
+});
